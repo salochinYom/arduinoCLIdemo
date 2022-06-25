@@ -6,12 +6,18 @@ Timer ledTimer(1000);
 bool LEDstate = HIGH;
 
 //serial parser
-char SerialMessage[1000]; //contains text
+#define WORD_LENG 75
+#define LETTER_LENG 64 
+#define MESSAGE_LENG 2000 
+
+char SerialMessage[MESSAGE_LENG]; //contains text
 unsigned int SerialMessagePosition = 0; //stores index position.
 
-char SerialWordBank[20][64]; //contains words parsed from serial message;
+char SerialWordBank[WORD_LENG][LETTER_LENG]; //contains words parsed from serial message
 unsigned int wordPos = 0; //tracks words in messages
 unsigned int letterPos = 0;//tracks letters in words
+
+
 
 
 void setup() {
@@ -40,8 +46,45 @@ void loop() {
       //print
       Serial.print("\n recieved command: ");
       Serial.println(SerialMessage);
+
+      //parse serial message into words by " "
+      //clear last command
+      for(unsigned int x = 0; x < WORD_LENG; x++){
+        for(unsigned int y = 0; y < LETTER_LENG; y++){
+          SerialWordBank[x][y] = ' ';
+        }
+      }
+      //reset counters
+      wordPos = 0;
+      letterPos = 0;
+      for(unsigned int i; i < SerialMessagePosition; i++){
+        if(SerialMessage[i] == ' '){ //if space
+          wordPos++;
+          letterPos = 0;
+          SerialWordBank[wordPos][letterPos] = SerialMessage[i];
+          letterPos++;
+        }
+        else{
+          SerialWordBank[wordPos][letterPos] = SerialMessage[i];
+          letterPos++;
+        }
+      }
+      //print out words
+      for(unsigned int i = 0; i <= wordPos; i++){
+        for(unsigned int x = 0; x <= LETTER_LENG; x++){
+          Serial.print(SerialWordBank[i][x]);
+        }
+        Serial.println(i);
+      }
+
       //reset counter
       SerialMessagePosition = 0;
+
+      //reset Serial message
+      for(unsigned int i = 0; i < MESSAGE_LENG; i++){
+        SerialMessage[i] == ' ';
+
+      }
     }
     else{
       Serial.print(inChar);
